@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Groundwater Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url("{{ url_for('static', filename='background.jpg') }}");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      padding: 20px;
+    }
+    .chat-box {
+      width: 500px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    .messages {
+      height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+    }
+    .input-box {
+      display: flex;
+      gap: 10px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .user { color: #007bff; }
+    .bot { color: #333; }
+  </style>
+</head>
+<body>
+  <div class="chat-box">
+    <h2>Ask Me Anything (Especially Groundwater!) 💧</h2>
+    <div class="messages" id="messages"></div>
+    <div class="input-box">
+      <input type="text" id="userInput" placeholder="Type your question..." />
+      <button onclick="sendMessage()">Ask</button>
+    </div>
+  </div>
+
+  <script>
+    function sendMessage() {
+      const input = document.getElementById("userInput");
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const messages = document.getElementById("messages");
+      messages.innerHTML += `<div><strong class="user">You:</strong> ${msg}</div>`;
+
+      fetch("/get", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ msg: msg })
+      })
+      .then(response => response.json())
+      .then(data => {
+        messages.innerHTML += `<div><strong class="bot">Bot:</strong> ${data.response}</div>`;
+        messages.scrollTop = messages.scrollHeight;
+      })
+      .catch(err => {
+        messages.innerHTML += `<div><strong class="bot">Bot:</strong> Error: ${err}</div>`;
+      });
+
+      input.value = "";
+    }
+
+    document.getElementById("userInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
